@@ -23,4 +23,8 @@ myButLast (_:xs) = myButLast xs
 
 elementAt [] _ = error "elementAt []: empty list"
 elementAt (x:_) 1 = x
-elementAt (_:xs) n = elementAt xs $ n - 1
+elementAt (_:xs) n
+  | n < 1 = error "elementAt xs n: n < 1"
+  | otherwise = elementAt xs $ n - 1
+
+-- Problem 4                
