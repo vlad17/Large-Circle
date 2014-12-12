@@ -17,16 +17,19 @@ main = $(defaultMainGenerator)
 checkError :: a -> Property
 checkError x = expectFailure $ seq x True
 
+checkEqual :: Eq a => (b -> a) -> (b -> a) -> b -> Property
+checkEqual f g x = property $ f x == g x
+
 -- Problem 1
 prop_myLast :: [Int] -> Property
 prop_myLast [] = checkError $ myLast []
-prop_myLast xs = property $ myLast xs == last xs
+prop_myLast xs = checkEqual myLast last xs
 
 -- Problem 2
 prop_myButLast :: [Int] -> Property
 prop_myButLast [] = checkError $ myButLast []
 prop_myButLast [x] = checkError $ myButLast [x]
-prop_myButLast xs = property $ myButLast xs == (last . init $ xs)
+prop_myButLast xs = checkEqual myButLast (last . init) $ xs
 
 -- Problem 3
 prop_elementAt :: [Int] -> Int -> Property
@@ -35,4 +38,6 @@ prop_elementAt xs n
   | n < 1 = checkError $ elementAt xs n
   | otherwise = property $ elementAt xs n == xs !! n - 1
 
-
+-- Problem 4
+prop_myLength :: [Int] -> Property
+prop_myLength = checkEqual myLength length

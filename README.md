@@ -18,8 +18,6 @@ $ cabal test
 $ ./dist/build/LargeCircle/LargeCircle
 ```
 
-TODO what are the controls
-
 ## Project intent
 
 The project demonstrates the performance of various approximate search algorithms. Currently, I am only planning to test how well genetic algorithms work.
