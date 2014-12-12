@@ -28,3 +28,4 @@ The problem is given by a random assortment of randomly-sized circles, and the t
 
 This project is a direct answer to the challenge posed by [a random page that I came across](http://www.ai-junkie.com/ga/intro/gat3.html).
 
+I suppose I'm also going to try to get through some of the 99 Haskell problems as well.
