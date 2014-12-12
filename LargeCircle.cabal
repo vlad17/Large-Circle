@@ -17,6 +17,7 @@ cabal-version:       >=1.8
 library
   hs-source-dirs:      src
   exposed-modules:     TutorialProblems.AllProblems
+  other-modules:       TutorialProblems.Problems01to10
   build-depends:       base < 5
 
 executable LargeCircle

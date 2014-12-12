@@ -1,8 +1,8 @@
 -- File contains the answers to all the 99 haskell problems
 
-module TutorialProblems.AllProblems where 
+module TutorialProblems.AllProblems
+       (module TutorialProblems.Problems01to10) where 
 
-myLast :: [a] -> a
-myLast [] = error "empty list"
-myLast [x] = x
-myLast (_:xs) = myLast xs
+import TutorialProblems.Problems01to10
+
+
