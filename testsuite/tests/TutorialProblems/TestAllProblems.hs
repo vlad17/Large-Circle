@@ -3,11 +3,13 @@
 
 module Main where 
 
+import qualified Data.List as List
+
 import Test.Framework (testGroup, Test)
 import Test.Framework.TH
 import Test.Framework.Providers.HUnit (testCase)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.HUnit ((@=?))
+import qualified Test.HUnit as HUnit ((@=?))
 import Test.QuickCheck
 
 import TutorialProblems.AllProblems
@@ -24,7 +26,7 @@ checkEqual :: Eq a => (b -> a) -> (b -> a) -> b -> Property
 checkEqual f g x = property $ f x == g x
 
 testCases :: (Show a, Eq a) => (b -> a) -> [(String, a, b)] -> [Test]
-testCases f = let mktest (str, a, b) = testCase str $ a @=? f b in map mktest
+testCases f = map $ \(str, a, b) -> testCase str $ a HUnit.@=? f b 
 
 -- Problem 1
 prop_myLast :: [Int] -> Property
@@ -63,13 +65,13 @@ prop_isPalindromeNo xs =
 -- Problem 7
 test_flatten :: [Test]
 test_flatten = testCases flatten
-                 [("Elem 5", [5], Elem 5),
-                  ("List []", [], List []),
-                  ("1-5", [1, 2, 3, 4, 5],
-                   List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]),
-                  ("Nested", [], List [List [List [], List [List []]]])]
+               [("Elem 5", [5], Elem 5),
+                ("List []", [], List []),
+                ("1-5", [1, 2, 3, 4, 5],
+                 List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]),
+                ("Nested", [], List [List [List [], List [List []]]])]
 
---Problem 8
+-- Problem 8
 test_compress :: [Test]
 test_compress = testCases compress
                 [("Empty", [], []),
@@ -77,5 +79,16 @@ test_compress = testCases compress
                  ("One Different", [1, 2, 1], [1, 1, 2, 1, 1, 1]),
                  ("Different", [1, 2, 3, 1, 4, 5],
                   [1, 1, 1, 1, 2, 3, 3, 1, 1, 4, 5, 5, 5, 5])]
-                  
                 
+-- Problem 9
+prop_pack :: [[Int]] -> Property
+prop_pack = checkEqual pack List.group
+
+-- Problem 10
+test_encode :: [Test]
+test_encode = testCases encode
+              [("Empty", [], []),
+               ("Same", [(5, 1)], [1, 1, 1, 1, 1]),
+               ("One Different", [(2, 1), (1, 2), (2, 1)], [1, 1, 2, 1, 1]),
+               ("Different", [(4, 1), (1, 2), (2, 3), (2, 1), (1, 4), (4, 5)],
+                [1, 1, 1, 1, 2, 3, 3, 1, 1, 4, 5, 5, 5, 5])]

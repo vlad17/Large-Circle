@@ -1,8 +1,5 @@
 -- Problems 1 to 10
 -- https://www.haskell.org/haskellwiki/99_questions/1_to_10
--- I'll intentionally solve these with recursion rather than library
--- functions for learning purposes. After this set I'll move on
--- to using the library functions.
 
 module TutorialProblems.Problems01to10 where
 
@@ -54,3 +51,13 @@ compress (x:xs@(y:_))
   | x == y = compress xs
   | otherwise = x : compress xs
 compress xs = xs
+
+-- Problem 9
+pack :: Eq a => [a] -> [[a]]
+pack [] = []
+pack (x:xs) = let (group, rest) = span (== x) xs in (x:group) : pack rest
+
+-- Problem 10
+encode :: Eq a => [a] -> [(Int, a)]
+encode = map (\ x -> (length x, head x)) . pack
+
