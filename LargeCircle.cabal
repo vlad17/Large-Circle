@@ -41,3 +41,4 @@ test-suite TestTutorialProblems
                      , LargeCircle
                      , test-framework-th
                      , test-framework-quickcheck2
+                     , QuickCheck

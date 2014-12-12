@@ -5,6 +5,7 @@ module Main where
 
 import Test.Framework.TH
 import Test.Framework.Providers.QuickCheck2
+import Test.QuickCheck
 
 import TutorialProblems.AllProblems
 
@@ -14,6 +15,6 @@ main = $(defaultMainGenerator)
 ---- QuickCheck2 test properties
 
 -- myLast should be equivalent to last
-prop_myLast :: [Int] -> Bool
-prop_myLast [] = True -- expectFailure . myLast $ []
-prop_myLast xs = myLast xs == last xs
+prop_myLast :: [Int] -> Property
+prop_myLast [] = expectFailure $ seq (myLast []) True
+prop_myLast xs = property $ myLast xs == last xs
