@@ -11,8 +11,7 @@ This is a small project I'm doing in order to learn Haskell.
 In the project's root folder:
 
 ```bash
-$ cabal configure --enable-tests
-$ cabal install -j`nproc` --only-dependencies
+$ cabal install -j`nproc` --only-dependencies --enable-tests
 $ cabal build
 $ cabal test
 $ ./dist/build/LargeCircle/LargeCircle

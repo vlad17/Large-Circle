@@ -38,7 +38,10 @@ test-suite TestTutorialProblems
   type:                exitcode-stdio-1.0
   ghc-options:         -Wall
   build-depends:       base < 5
+                     , HUnit
                      , LargeCircle
+                     , test-framework
+                     , test-framework-hunit
                      , test-framework-th
                      , test-framework-quickcheck2
                      , QuickCheck
