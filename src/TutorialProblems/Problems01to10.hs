@@ -29,9 +29,8 @@ elementAt (_:xs) n
 
 -- Problem 4
 myLength :: [a] -> Int
-myLength = let aux [] acc = acc
-               aux (_:xs) acc = aux xs $ acc + 1
-           in flip aux 0
+myLength [] = 0
+myLength (_:xs) = 1 + myLength xs
 
 -- Problem 5
 myReverse :: [a] -> [a]
@@ -45,17 +44,13 @@ isPalindrome xs = xs == reverse xs
 
 -- Problem 7
 data NestedList a = Elem a | List [NestedList a]
-myFlatten :: NestedList a -> [a]
-myFlatten nl =
-  let aux (Elem a) acc = a:acc
-      aux (List []) acc = acc
-      aux (List (x:xs)) acc = aux (List xs) $ aux x acc
-  in reverse $ aux nl []
+flatten :: NestedList a -> [a]
+flatten (Elem a) = [a]
+flatten (List x) = concatMap flatten x
 
 -- Problem 8
 compress :: Eq a => [a] -> [a]
-compress xs =
-  let aux [] acc = reverse acc
-      aux (x:xs) ls@(top:_) = aux xs $ if x == top then ls else x:ls
-      aux (x:xs) [] = aux xs [x]
-  in aux xs []
+compress (x:xs@(y:_))
+  | x == y = compress xs
+  | otherwise = x : compress xs
+compress xs = xs

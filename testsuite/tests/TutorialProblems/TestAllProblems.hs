@@ -61,8 +61,8 @@ prop_isPalindromeNo xs =
   where off = last xs + 1
 
 -- Problem 7
-test_myFlatten :: [Test]
-test_myFlatten = testCases myFlatten
+test_flatten :: [Test]
+test_flatten = testCases flatten
                  [("Elem 5", [5], Elem 5),
                   ("List []", [], List []),
                   ("1-5", [1, 2, 3, 4, 5],
