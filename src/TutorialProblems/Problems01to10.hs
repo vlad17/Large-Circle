@@ -51,3 +51,11 @@ myFlatten nl =
       aux (List []) acc = acc
       aux (List (x:xs)) acc = aux (List xs) $ aux x acc
   in reverse $ aux nl []
+
+-- Problem 8
+compress :: Eq a => [a] -> [a]
+compress xs =
+  let aux [] acc = reverse acc
+      aux (x:xs) ls@(top:_) = aux xs $ if x == top then ls else x:ls
+      aux (x:xs) [] = aux xs [x]
+  in aux xs []

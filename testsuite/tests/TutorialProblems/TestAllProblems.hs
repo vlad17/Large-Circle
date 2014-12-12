@@ -63,5 +63,19 @@ prop_isPalindromeNo xs =
 -- Problem 7
 test_myFlatten :: [Test]
 test_myFlatten = testCases myFlatten
-  [("Elem 5", [5], Elem 5),
-   ("List []", [], List [])]
+                 [("Elem 5", [5], Elem 5),
+                  ("List []", [], List []),
+                  ("1-5", [1, 2, 3, 4, 5],
+                   List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]),
+                  ("Nested", [], List [List [List [], List [List []]]])]
+
+--Problem 8
+test_compress :: [Test]
+test_compress = testCases compress
+                [("Empty", [], []),
+                 ("Same", [1], [1, 1, 1, 1, 1]),
+                 ("One Different", [1, 2, 1], [1, 1, 2, 1, 1, 1]),
+                 ("Different", [1, 2, 3, 1, 4, 5],
+                  [1, 1, 1, 1, 2, 3, 3, 1, 1, 4, 5, 5, 5, 5])]
+                  
+                
