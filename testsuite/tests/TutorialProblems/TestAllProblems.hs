@@ -9,7 +9,7 @@ import Test.Framework (testGroup, Test)
 import Test.Framework.TH
 import Test.Framework.Providers.HUnit (testCase)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
-import qualified Test.HUnit as HUnit ((@=?))
+import Test.HUnit (Assertion, (@=?))
 import Test.QuickCheck
 
 import TutorialProblems.AllProblems
@@ -26,7 +26,7 @@ checkEqual :: Eq a => (b -> a) -> (b -> a) -> b -> Property
 checkEqual f g x = property $ f x == g x
 
 testCases :: (Show a, Eq a) => (b -> a) -> [(String, a, b)] -> [Test]
-testCases f = map $ \(str, a, b) -> testCase str $ a HUnit.@=? f b 
+testCases f = map $ \(str, a, b) -> testCase str $ a @=? f b 
 
 -- Problem 1
 prop_myLast :: [Int] -> Property
@@ -92,3 +92,64 @@ test_encode = testCases encode
                ("One Different", [(2, 1), (1, 2), (2, 1)], [1, 1, 2, 1, 1]),
                ("Different", [(4, 1), (1, 2), (2, 3), (2, 1), (1, 4), (4, 5)],
                 [1, 1, 1, 1, 2, 3, 3, 1, 1, 4, 5, 5, 5, 5])]
+
+-- Problem 11
+test_encodeModified :: [Test]
+test_encodeModified = testCases encodeModified
+  [("Nonempty", [Multiple 4 'a', Single 'b', Multiple 2 'c', 
+                 Multiple 2 'a', Single 'd', Multiple 4 'e'], "aaaabccaadeeee"),
+   ("Empty", [], ""),
+   ("Same 5", [Multiple 5 'a'], "aaaaa"),
+   ("Same 1", [Single 'a'], "a")]
+
+-- Problem 12
+test_decodeModified :: [Test]
+test_decodeModified = testCases decodeModified
+  [("Nonempty", "aaaabccaadeeee", [Multiple 4 'a', Single 'b', Multiple 2 'c', 
+                                   Multiple 2 'a', Single 'd', Multiple 4 'e']),
+   ("Empty", "", []),
+   ("Same 5", "aaaaa", [Multiple 5 'a']),
+   ("Same 1", "a", [Single 'a'])]
+
+-- Problem 13
+prop_encodeDirect :: [Int] -> Property
+prop_encodeDirect = checkEqual encodeDirect encodeModified
+
+-- Problem 14
+chunk :: Int -> [a] -> [[a]]
+chunk _ [] = []
+chunk n xs = (\ (x, y) -> x : chunk n y) $ splitAt n xs
+
+prop_dupli :: [Int] -> Property
+prop_dupli xs = let dup = chunk 2 $ dupli xs
+                in property $ map head dup == xs && all ((== 2) . length) dup
+
+-- Problem 15
+prop_repli2 :: [Int] -> Property
+prop_repli2 = checkEqual dupli $ flip repli 2
+prop_repli4 :: [Int] -> Property
+prop_repli4 = checkEqual (dupli . dupli) $ flip repli 4
+
+-- Problem 16
+test_dropEvery :: [Test]
+test_dropEvery = testCases (uncurry dropEvery)
+                 [("Nonempty", "abdeghk", ("abcdefghik", 3)),
+                  ("Empty", "", ("", 4))]
+
+-- Problem 17
+prop_split :: ([Int], Int) -> Property
+prop_split = checkEqual (uncurry split) (uncurry $ flip splitAt)
+
+-- Problem 18
+case_slice :: Assertion
+case_slice = "cdefg" @=? slice ['a','b','c','d','e','f','g','h','i','k'] 3 7
+
+-- Problem 19
+case_rotate1 :: Assertion
+case_rotate1 = "defghabc" @=? rotate ['a','b','c','d','e','f','g','h'] 3
+case_rotate2 :: Assertion
+case_rotate2 = "ghabcdef" @=? rotate ['a','b','c','d','e','f','g','h'] (-2)
+
+-- Problem 20
+case_removeAt :: Assertion
+case_removeAt = ('b',"acd") @=? removeAt 2 "abcd"
