@@ -65,7 +65,7 @@ prop_isPalindromeNo xs =
 -- Problem 7
 test_flatten :: [Test]
 test_flatten = testCases flatten
-               [("Elem 5", [5], Elem 5),
+               [("Elem 5", [5] :: [Int], Elem 5),
                 ("List []", [], List []),
                 ("1-5", [1, 2, 3, 4, 5],
                  List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]),
@@ -74,7 +74,7 @@ test_flatten = testCases flatten
 -- Problem 8
 test_compress :: [Test]
 test_compress = testCases compress
-                [("Empty", [], []),
+                [("Empty", [], [] :: [Int]),
                  ("Same", [1], [1, 1, 1, 1, 1]),
                  ("One Different", [1, 2, 1], [1, 1, 2, 1, 1, 1]),
                  ("Different", [1, 2, 3, 1, 4, 5],
@@ -87,7 +87,7 @@ prop_pack = checkEqual pack List.group
 -- Problem 10
 test_encode :: [Test]
 test_encode = testCases encode
-              [("Empty", [], []),
+              [("Empty", [], [] :: [Int]),
                ("Same", [(5, 1)], [1, 1, 1, 1, 1]),
                ("One Different", [(2, 1), (1, 2), (2, 1)], [1, 1, 2, 1, 1]),
                ("Different", [(4, 1), (1, 2), (2, 3), (2, 1), (1, 4), (4, 5)],

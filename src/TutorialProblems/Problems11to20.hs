@@ -28,7 +28,7 @@ encodeDirect [] = []
 encodeDirect (x:xs) =
   let aux tup [] = [itemTuple tup]
       aux t@(n, y) (x:xs)
-        | y == x = aux (n + 1, y) xs
+        | y == x = aux (succ n, y) xs
         | otherwise = itemTuple t : aux (1, x) xs
   in aux (1, x) xs
 
@@ -44,7 +44,7 @@ repli = flip $ concatMap . replicate
 dropEvery :: [a] -> Int -> [a]
 dropEvery [] _ = []
 dropEvery xs n =
-  let (top, bottom) = splitAt (n - 1) xs
+  let (top, bottom) = splitAt (pred n) xs
   in top ++ dropEvery (drop 1 bottom) n
 
 -- Problem 17
@@ -63,4 +63,4 @@ rotate xs n = take len $ drop shift $ cycle xs
 
 -- Problem 20
 removeAt :: Int -> [a] -> (a, [a])
-removeAt n xs = (xs !! (n - 1), take (n - 1) xs ++ drop n xs)
+removeAt n xs = (xs !! pred n, take (pred n) xs ++ drop n xs)

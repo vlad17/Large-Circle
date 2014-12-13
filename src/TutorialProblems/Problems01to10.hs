@@ -22,12 +22,12 @@ elementAt [] _ = error "elementAt []: empty list"
 elementAt (x:_) 1 = x
 elementAt (_:xs) n
   | n < 1 = error "elementAt xs n: n < 1"
-  | otherwise = elementAt xs $ n - 1
+  | otherwise = elementAt xs $ pred n
 
 -- Problem 4
 myLength :: [a] -> Int
 myLength [] = 0
-myLength (_:xs) = 1 + myLength xs
+myLength (_:xs) = succ $ myLength xs
 
 -- Problem 5
 myReverse :: [a] -> [a]
