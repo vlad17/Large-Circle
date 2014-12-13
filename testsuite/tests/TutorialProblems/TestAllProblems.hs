@@ -24,6 +24,8 @@ checkError x = expectFailure $ seq x True
 
 checkEqual :: Eq a => (b -> a) -> (b -> a) -> b -> Property
 checkEqual f g x = property $ f x == g x
+checkEqual2 :: Eq a => (b -> c -> a) -> (b -> c -> a) -> b -> c -> Property
+checkEqual2 f g = curry $ checkEqual (uncurry f) (uncurry g)
 
 testCases :: (Show a, Eq a) => (b -> a) -> [(String, a, b)] -> [Test]
 testCases f = map $ \(str, a, b) -> testCase str $ a @=? f b 
@@ -137,8 +139,8 @@ test_dropEvery = testCases (uncurry dropEvery)
                   ("Empty", "", ("", 4))]
 
 -- Problem 17
-prop_split :: ([Int], Int) -> Property
-prop_split = checkEqual (uncurry split) (uncurry $ flip splitAt)
+prop_split :: [Int] -> Int -> Property
+prop_split = checkEqual2 split $ flip splitAt
 
 -- Problem 18
 case_slice :: Assertion
@@ -153,3 +155,51 @@ case_rotate2 = "ghabcdef" @=? rotate ['a','b','c','d','e','f','g','h'] (-2)
 -- Problem 20
 case_removeAt :: Assertion
 case_removeAt = ('b',"acd") @=? removeAt 2 "abcd"
+
+-- Problem 21
+case_insertAt :: Assertion
+case_insertAt = "aXbcd" @=? insertAt 'X' "abcd" 2
+
+-- Problem 22
+prop_range :: Int -> Int -> Property
+prop_range x y = abs x < 50 && abs y < 50 ==> checkEqual2 range enumFromTo x y
+
+-- Problem 23
+-- Problem 24
+-- Problem 25
+-- Randomized algorithms, too lazy to test them (that's the Haskell spirit!)
+
+-- Problem 26
+prop_combinations :: Int -> Int -> Property
+prop_combinations n m = n >= 0 && n <= m && m < 10 ==>
+  length combo == binom m n
+  && (and . map ((== n) . length)) combo
+  && length (List.nub combo) == binom m n
+  where combo = combinations n [1..m] :: [[Int]]
+        binom _ 0 = 1
+        binom x y =
+          if x == y then 1 else binom (pred x) (pred y) + binom (pred x) y
+                                
+-- Problem 27
+prop_group :: [Int] -> [Int] -> Property
+prop_group ns xs = let (lns, lxs) = (length ns, length xs) in
+  lns < lxs && lxs < 10 && all (<= lxs) ns && sum ns <= lxs ==>
+  let (osol, mysol) = (online ns xs, group ns xs)
+  in List.sort osol == List.sort mysol
+  where
+    online [] = const [[]]
+    online (i:is) = concatMap (uncurry $ (. group is) . map . (:)) . paircomb i
+
+-- Problem 28
+test_lsort :: [Test]
+test_lsort = testCases lsort
+  [("Empty", [], []),
+   ("Nonempty", ["o","de","de","mn","abc","fgh","ijkl"],
+    ["abc","de","fgh","de","ijkl","mn","o"])]
+
+test_lfsort :: [Test]
+test_lfsort = testCases lfsort
+  [("Empty", [], []),
+   ("Nonempty", ["o","ijkl","abc","fgh","de","de","mn"],
+    ["abc", "de", "fgh", "de", "ijkl", "mn", "o"])]
+  
