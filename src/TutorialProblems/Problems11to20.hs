@@ -5,8 +5,7 @@ module TutorialProblems.Problems11to20 where
 
 import qualified TutorialProblems.Problems01to10
 
-data ListItem a = Single a | Multiple Int a
-  deriving (Show, Eq)
+data ListItem a = Single a | Multiple Int a deriving (Show, Eq)
 tupleItem :: ListItem a -> (Int, a)
 tupleItem (Single a) = (1, a)
 tupleItem (Multiple n a) = (n, a)
@@ -18,7 +17,7 @@ itemTuple (n, x) = Multiple n x
 encodeModified :: Eq a => [a] -> [ListItem a]
 encodeModified = map itemTuple . TutorialProblems.Problems01to10.encode
 
--- Problem 12  
+-- Problem 12
 decodeModified :: Eq a => [ListItem a] -> [a]
 decodeModified = concatMap $ uncurry replicate . tupleItem
 
@@ -41,11 +40,14 @@ repli :: [a] -> Int -> [a]
 repli = flip $ concatMap . replicate
 
 -- Problem 16
-dropEvery :: [a] -> Int -> [a]
-dropEvery [] _ = []
-dropEvery xs n =
-  let (top, bottom) = splitAt (pred n) xs
-  in top ++ dropEvery (drop 1 bottom) n
+dropEveryPartial :: Integral a => a -> [b] -> [b]
+dropEveryPartial n = cycle 1
+  where cycle _ [] = []
+        cycle i (x:xs)
+          | i == n = cycle 1 xs
+          | otherwise = x : cycle (succ i) xs
+dropEvery :: Integral a => [b] -> a -> [b]
+dropEvery = flip dropEveryPartial
 
 -- Problem 17
 split :: [a] -> Int -> ([a], [a])

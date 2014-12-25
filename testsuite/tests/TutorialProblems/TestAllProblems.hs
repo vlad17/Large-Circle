@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 -- Uses QuickCheck, HUnit to test all the 99 problems.
 
-module Main where 
+module Main where
 
 import qualified Data.List as List
 
@@ -9,7 +9,7 @@ import Test.Framework (testGroup, Test)
 import Test.Framework.TH
 import Test.Framework.Providers.HUnit (testCase)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.HUnit (Assertion, (@=?))
+import Test.HUnit (assert, Assertion, (@=?))
 import Test.QuickCheck
 
 import TutorialProblems.AllProblems
@@ -28,7 +28,7 @@ checkEqual2 :: Eq a => (b -> c -> a) -> (b -> c -> a) -> b -> c -> Property
 checkEqual2 f g = curry $ checkEqual (uncurry f) (uncurry g)
 
 testCases :: (Show a, Eq a) => (b -> a) -> [(String, a, b)] -> [Test]
-testCases f = map $ \(str, a, b) -> testCase str $ a @=? f b 
+testCases f = map $ \(str, a, b) -> testCase str $ a @=? f b
 
 -- Problem 1
 prop_myLast :: [Int] -> Property
@@ -81,7 +81,7 @@ test_compress = testCases compress
                  ("One Different", [1, 2, 1], [1, 1, 2, 1, 1, 1]),
                  ("Different", [1, 2, 3, 1, 4, 5],
                   [1, 1, 1, 1, 2, 3, 3, 1, 1, 4, 5, 5, 5, 5])]
-                
+
 -- Problem 9
 prop_pack :: [[Int]] -> Property
 prop_pack = checkEqual pack List.group
@@ -98,7 +98,7 @@ test_encode = testCases encode
 -- Problem 11
 test_encodeModified :: [Test]
 test_encodeModified = testCases encodeModified
-  [("Nonempty", [Multiple 4 'a', Single 'b', Multiple 2 'c', 
+  [("Nonempty", [Multiple 4 'a', Single 'b', Multiple 2 'c',
                  Multiple 2 'a', Single 'd', Multiple 4 'e'], "aaaabccaadeeee"),
    ("Empty", [], ""),
    ("Same 5", [Multiple 5 'a'], "aaaaa"),
@@ -107,7 +107,7 @@ test_encodeModified = testCases encodeModified
 -- Problem 12
 test_decodeModified :: [Test]
 test_decodeModified = testCases decodeModified
-  [("Nonempty", "aaaabccaadeeee", [Multiple 4 'a', Single 'b', Multiple 2 'c', 
+  [("Nonempty", "aaaabccaadeeee", [Multiple 4 'a', Single 'b', Multiple 2 'c',
                                    Multiple 2 'a', Single 'd', Multiple 4 'e']),
    ("Empty", "", []),
    ("Same 5", "aaaaa", [Multiple 5 'a']),
@@ -135,7 +135,7 @@ prop_repli4 = checkEqual (dupli . dupli) $ flip repli 4
 -- Problem 16
 test_dropEvery :: [Test]
 test_dropEvery = testCases (uncurry dropEvery)
-                 [("Nonempty", "abdeghk", ("abcdefghik", 3)),
+                 [("Nonempty", "abdeghk", ("abcdefghik", 3 :: Int)),
                   ("Empty", "", ("", 4))]
 
 -- Problem 17
@@ -179,7 +179,7 @@ prop_combinations n m = n >= 0 && n <= m && m < 10 ==>
         binom _ 0 = 1
         binom x y =
           if x == y then 1 else binom (pred x) (pred y) + binom (pred x) y
-                                
+
 -- Problem 27
 prop_group :: [Int] -> [Int] -> Property
 prop_group ns xs = let (lns, lxs) = (length ns, length xs) in
@@ -202,4 +202,65 @@ test_lfsort = testCases lfsort
   [("Empty", [], []),
    ("Nonempty", ["o","ijkl","abc","fgh","de","de","mn"],
     ["abc", "de", "fgh", "de", "ijkl", "mn", "o"])]
-  
+
+-- Problem 31
+test_isPrime :: [Test]
+test_isPrime = testCases isPrime
+  [("1", False, 1 :: Int), ("2", True, 2), ("3", True, 3), ("4", False, 4),
+   ("5", True, 5), ("6", False, 6), ("7", True, 7), ("8", False, 8),
+   ("29", True, 29), ("30", False, 30), ("11083", True, 11083)]
+
+-- Problem 32
+prop_myGCD :: Int -> Int -> Property
+prop_myGCD n m = checkEqual2 myGCD gcd n m
+
+-- Problem 33
+case_coprime1 :: Assertion
+case_coprime1 = assert $ coprime 35 (64 :: Int)
+case_coprime2 :: Assertion
+case_coprime2 = assert $ not $ coprime 36 (64 :: Int)
+
+-- Problem 34
+case_totient1 :: Assertion
+case_totient1 = 4 @=? totient 10
+case_totient2 :: Assertion
+case_totient2 = 1 @=? totient 1
+
+-- Problem 35
+prop_primeFactors :: Int -> Property
+prop_primeFactors n = abs n < 10000 ==>
+  let primef = primeFactors n in
+  property $ n == 0 && primef == [] ||
+    product primef == abs n && all isPrime primef
+
+-- Problem 36
+case_primeFactorsMult :: Assertion
+case_primeFactorsMult = [(3, 2), (5, 1), (7, 1)] @=? primeFactorsMult 315
+
+-- Problem 37
+prop_totient2 :: Int -> Property
+prop_totient2 n = n > 0 && n < 10000 ==> checkEqual totient totient2 n
+
+-- Problem 38
+case_compareTotients :: Assertion
+case_compareTotients = assert compareTotients
+
+-- Problem 39
+case_primesR :: Assertion
+case_primesR = [11, 13, 17, 19 :: Int] @=? primesR 10 20
+
+-- Problem 40
+prop_goldbach :: Int -> Property
+prop_goldbach n = 2 < n && even n && n < 10000 ==> let (a, b) = goldbach n in
+  property $ a + b == n && isPrime a && isPrime b
+
+-- Problem 41
+case_goldbachList :: Assertion
+case_goldbachList = [(3, 7), (5, 7), (3, 11), (3, 13), (5, 13), (3, 17)] @=?
+  goldbachList 9 (20 :: Int)
+case_goldbachListFast :: Assertion
+case_goldbachListFast = [(3, 7), (5, 7), (3, 11), (3, 13), (5, 13), (3, 17)] @=?
+  goldbachListFast 9 (20 :: Int)
+case_goldbachList' :: Assertion
+case_goldbachList' = [(73, 919), (61, 1321), (67, 1789), (61, 1867)] @=?
+  goldbachList' 4 2000 (50 :: Int)

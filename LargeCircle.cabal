@@ -20,7 +20,9 @@ library
   other-modules:       TutorialProblems.Problems01to10
                      , TutorialProblems.Problems11to20
                      , TutorialProblems.Problems21to28
+                     , TutorialProblems.Problems31to41
   build-depends:       base < 5
+                     , containers
                      , random
 
 executable LargeCircle
