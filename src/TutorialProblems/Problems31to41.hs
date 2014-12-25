@@ -93,10 +93,10 @@ goldbachListFast lo hi =
         | f > r = s
         | f + r > hi = in_range fwd rs s
         | otherwise = in_range fs rev $ add_all f rev s
-      add_all f rs s = foldl add_one s rs
-        where add_one s r =
-                if f + r < lo || odd (f + r) || Map.member (f + r) s then s
-                else Map.insert (f + r) (f, r) s
+      add_all f rs s = foldl add_one s $ takeWhile not_less rs
+        where not_less = not . (< lo) . (+ f)
+              add_one s r = if odd (f + r) || Map.member (f + r) s then s
+                            else Map.insert (f + r) (f, r) s
   in Map.elems $ in_range fwd_primes rev_primes Map.empty
 
 goldbachList' :: Integral a => a -> a -> a -> [(a, a)]
