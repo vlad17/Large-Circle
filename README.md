@@ -4,7 +4,7 @@ This is a small project I'm doing in order to learn Haskell.
 
 ## System requirements
 
-`ghc` with `cabal`, version 1.16+
+`ghc` with `cabal`, version 1.18+ (see end for installation instructions).
 
 ## How to use
 
@@ -26,3 +26,13 @@ The problem is given by a random assortment of randomly-sized circles, and the t
 This project is a direct answer to the challenge posed by [a random page that I came across](http://www.ai-junkie.com/ga/intro/gat3.html).
 
 I suppose I'm also going to try to get through some of the 99 Haskell problems as well.
+
+## Installation instructions
+
+Installation instruction on Debian. Non-aptitude package managers
+should ~~suck it~~ have their respective invocations.
+
+```bash
+$ sudo apt-get install haskell-platform
+$ cabal install caball-install
+```
