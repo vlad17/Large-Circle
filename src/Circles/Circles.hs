@@ -2,7 +2,8 @@ module Circles.Circles where
 
 import System.Random as Random
 
-data Circle = Circle { x :: Int, y :: Int, r :: Int }
+data Circle = Circle { xCoord :: Int, yCoord :: Int, radius :: Int }
+toTuple (Circle { xCoord = x, yCoord = y, radius = r }) = (x, y, r)
 
 -- makeRandom n w h minr maxr
 -- Makes n random circles with centers in the rectangle (0, 0) x (w, h)
@@ -13,7 +14,7 @@ makeRandom :: Int -> Int -> Int -> Int -> Int -> IO [Circle]
 
 makeRandom n w h minr maxr = sequence $ replicate n randomCircle
   where randomCircle = do
-          xx <- Random.randomRIO (0, w)
-          yy <- Random.randomRIO (0, h)
-          rr <- Random.randomRIO (minr, maxr)
-          return Circle { x = xx, y = yy, r = rr }
+          x <- Random.randomRIO (0, w)
+          y <- Random.randomRIO (0, h)
+          r <- Random.randomRIO (minr, maxr)
+          return $ Circle x y r

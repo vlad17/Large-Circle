@@ -27,7 +27,7 @@ library
 
 executable LargeCircle
   hs-source-dirs:      src
-  ghc-options:         -Wall
+  ghc-options:         -Wall -threaded
   main-is:             LargeCircle.hs
   other-modules:       Circles.Circles
                      , CircleGUI.CircleGUI
@@ -35,6 +35,7 @@ executable LargeCircle
                      , gtk
                      , tuple
                      , mtl
+                     , stm
                      , random
                      , unix
 
