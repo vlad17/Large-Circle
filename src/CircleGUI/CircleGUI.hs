@@ -4,8 +4,8 @@
 module CircleGUI.CircleGUI where
 
 import qualified Circles.Circles as Circles
-import qualified Control.Concurrent.STM as STM
-import qualified Control.Monad.Trans as Trans
+import qualified Control.Monad as Monad
+import qualified Data.IORef as IORef
 import qualified Graphics.UI.Gtk as Gtk
 import qualified Graphics.UI.Gtk.Gdk.GC as Gtk
 
@@ -30,8 +30,15 @@ size :: Window -> IO (Int, Int)
 -- Adds a canvas with the static circles drawn to the window in black.
 -- The canvas will have the circle pointed to by 'circle' drawn in red
 -- since the pointer is mutable, it will be updated.
-addCircles :: Window -> [Circles.Circle] -> STM.TVar Circles.Circle
-              -> IO (Int -> Int -> Int -> Int -> IO ())
+--
+-- After making a mutation to the parameter circle transaction variable,
+-- make sure to call the update handler. This is safe to do on any thread
+-- (it notifies the main event dispatch loop asynchronously).
+--
+-- The update function should only be called from one thread at a time,
+-- by the same thread that mutates the parameter circle reference.
+addCircles :: Window -> [Circles.Circle] -> IORef.IORef Circles.Circle
+              -> IO (IO ())
 
 -- Implementation
 
@@ -67,7 +74,12 @@ addCircles window circles circle = do
   -- Set the repaint handler and add to the window
   _ <- Gtk.onExpose canvas $ updateCanvas canvas
   Gtk.containerAdd window canvas
-  return $ \ x y w h -> (Gtk.widgetGetDrawWindow canvas >>= (\ wi -> Gtk.drawWindowInvalidateRect wi (Gtk.Rectangle x y w h) True))
+
+  -- Create the update function. First, generate a reference to a
+  -- "history," the last circle that was drawn (its region needs to be
+  -- invalidated because it no longer exists there).
+  history <- IORef.readIORef circle >>= IORef.newIORef
+  return $ invalidateMutableCircle history canvas
   where
     drawCircle drawWindow drawContext circ =
       let (x, y, r) = Circles.toTuple circ
@@ -79,6 +91,21 @@ addCircles window circles circle = do
       mapM_ (drawCircle drawWindow blackAndThin) circles
       redAndThin <- Gtk.gcNewWithValues drawWindow $
                     Gtk.newGCValues { Gtk.foreground = Gtk.Color 65535 0 0 }
-      circleSnapshot <- STM.atomically $ STM.readTVar circle
+      circleSnapshot <- IORef.readIORef circle
       drawCircle drawWindow redAndThin circleSnapshot
       return True
+    invalidateMutableCircle history canvas = Gtk.postGUIAsync $ do
+      current <- IORef.readIORef circle
+      prev <- IORef.readIORef history
+      Monad.unless (current == prev) $ do
+        drawWindow <- Gtk.widgetGetDrawWindow canvas
+        let invalidateRegions = do
+              Gtk.drawWindowInvalidateRect drawWindow (bounding prev) True
+              Gtk.drawWindowInvalidateRect drawWindow (bounding current) True
+        Gtk.postGUIAsync invalidateRegions
+        IORef.writeIORef history current
+    bounding circ =
+      let (x, y, r) = Circles.toTuple circ
+          buffer = 5
+          br = r + buffer
+      in Gtk.Rectangle (x - br) (y - br) (2 * br) (2 * br)

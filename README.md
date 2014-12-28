@@ -1,7 +1,5 @@
 # Largest Circle
 
-This is a small project I'm doing in order to learn Haskell.
-
 ## System requirements
 
 `ghc` with `cabal`, version 1.18+ (see end for installation instructions).
@@ -16,6 +14,9 @@ $ cabal build
 $ cabal test
 $ ./dist/build/LargeCircle/LargeCircle
 ```
+
+Note that for some reason the GTK+ signal handler requires two inputs,
+so if you want to exit by terminal then send SIGTERM twice.
 
 ## Project intent
 

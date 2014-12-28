@@ -3,6 +3,11 @@ module Circles.Circles where
 import System.Random as Random
 
 data Circle = Circle { xCoord :: Int, yCoord :: Int, radius :: Int }
+  deriving (Eq)
+
+-- toTuple circle
+-- Returns the tuple (x, y, r) for the circle.
+toTuple :: Circle -> (Int, Int, Int)
 toTuple (Circle { xCoord = x, yCoord = y, radius = r }) = (x, y, r)
 
 -- makeRandom n w h minr maxr
