@@ -32,10 +32,12 @@ getScreenSize :: IO (Int, Int)
 -- Sets window to have (width, height) be (w, h)
 setDefaultSize :: Window -> Int -> Int -> IO ()
 
--- addCanvas window circles w h
+-- addCanvas window circles circle w h
 -- Adds a canvas with the static circles drawn to the window and returns
--- the canvas. Canvase has dimensions (w, h)
-addCanvas :: Window -> [Circles.Circle] -> Int -> Int -> IO DrawingArea
+-- the canvas. Canvase has dimensions (w, h). The list of circles is drawn
+-- in black while the single circle is drawn in red.
+addCanvas :: Window -> [Circles.Circle] -> Circles.Circle
+             -> Int -> Int -> IO DrawingArea
 
 -- Implementation
 
@@ -61,18 +63,22 @@ getScreenSize = TupleSeq.sequenceT (Gtk.screenWidth, Gtk.screenHeight)
 
 setDefaultSize = Gtk.windowSetDefaultSize
 
-addCanvas window circles w h = do
+addCanvas window circles circle w h = do
   canvas <- Gtk.drawingAreaNew
   _ <- Gtk.onSizeRequest canvas $ return (Gtk.Requisition w h)
   _ <- Gtk.onExpose canvas $ drawCanvas canvas
   Gtk.containerAdd window canvas
   return canvas
   where
+    drawCircle drawWindow drawContext
+      (Circles.Circle { Circles.x = x, Circles.y = y, Circles.r = r }) =
+        let (cx, cy, rr) = (x - r, y - r, r * 2)
+        in Gtk.drawArc drawWindow drawContext False cx cy rr rr 0 (64 * 360)
     drawCanvas canvas _ = do
       drawWindow <- Gtk.widgetGetDrawWindow canvas
       blackAndThin <- Gtk.gcNew drawWindow
-      let drawCircle (Circles.Circle { Circles.x = x, Circles.y = y
-                                     , Circles.r = r }) =
-            Gtk.drawArc drawWindow blackAndThin False x y r r 0 (64 * 360)
-      mapM_ drawCircle circles
+      mapM_ (drawCircle drawWindow blackAndThin) circles
+      redAndThin <- Gtk.gcNewWithValues drawWindow $
+                    Gtk.newGCValues { Gtk.foreground = Gtk.Color 65535 0 0 }
+      drawCircle drawWindow redAndThin circle
       return True
