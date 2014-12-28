@@ -9,8 +9,6 @@ import qualified Control.Concurrent as Concurrent
 import qualified Control.Monad as Monad
 import qualified Data.IORef as IORef
 
-import qualified Graphics.UI.Gtk as Gtk
-
 -- Asyc "circle enlargment" task which simulates an animation
 -- as a calculation generates a new circle.
 enlargeCircle :: IO () -> IORef.IORef Circles.Circle -> Int -> IO ()
@@ -46,7 +44,7 @@ main = do
   update <- CircleGUI.addCircles window randomCircles redCircle
 
   -- Set a thread to make the redCircle larger as time goes on.
-  Monad.void . Gtk.onRealize window $ Monad.void . Concurrent.forkIO $
+  CircleGUI.postDisplay window $ Monad.void . Concurrent.forkIO $
     enlargeCircle update redCircle $ maxRadius * 2
 
   -- Add them to the canvas and display

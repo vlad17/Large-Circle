@@ -26,6 +26,10 @@ finish :: Window -> IO ()
 -- Returns window's (width, height).
 size :: Window -> IO (Int, Int)
 
+-- postDisplay window action
+-- Registers action to be done after window has been displayed.
+postDisplay :: Window -> IO () -> IO ()
+
 -- addCircles window circles circle
 -- Adds a canvas with the static circles drawn to the window in black.
 -- The canvas will have the circle pointed to by 'circle' drawn in red
@@ -37,6 +41,11 @@ size :: Window -> IO (Int, Int)
 --
 -- The update function should only be called from one thread at a time,
 -- by the same thread that mutates the parameter circle reference.
+--
+-- Note that 'update' can only be called after the window is displayed;
+-- in other words, after calling 'finish'. Thus a method which updates the
+-- variable should do so on another thread which is started by a call
+-- to 'postDisplay'
 addCircles :: Window -> [Circles.Circle] -> IORef.IORef Circles.Circle
               -> IO (IO ())
 
@@ -109,3 +118,5 @@ addCircles window circles circle = do
           buffer = 5
           br = r + buffer
       in Gtk.Rectangle (x - br) (y - br) (2 * br) (2 * br)
+
+postDisplay window = Monad.void . Gtk.onRealize window
