@@ -16,7 +16,7 @@ $ ./dist/build/LargeCircle/LargeCircle
 ```
 
 Note that for some reason the GTK+ signal handler requires two inputs,
-so if you want to exit by terminal then send SIGTERM twice.
+so if you want to exit by terminal then send SIGINT twice.
 
 ## Project intent
 
