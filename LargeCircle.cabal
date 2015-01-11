@@ -17,10 +17,11 @@ cabal-version:       >=1.8
 library
   hs-source-dirs:      src
   exposed-modules:     TutorialProblems.AllProblems
-                     , TutorialProblems.Problems01to10
+  other-modules:       TutorialProblems.Problems01to10
                      , TutorialProblems.Problems11to20
                      , TutorialProblems.Problems21to28
                      , TutorialProblems.Problems31to41
+                     , Utils
   build-depends:       base < 5
                      , containers
                      , random
@@ -31,7 +32,10 @@ executable LargeCircle
   main-is:             LargeCircle.hs
   other-modules:       Circles.Circles
                      , CircleGUI.CircleGUI
+                     , Genetic.Learning
+                     , Utils
   build-depends:       base < 5
+                     , array
                      , gtk
                      , tuple
                      , mtl

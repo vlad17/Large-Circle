@@ -8,6 +8,8 @@ import qualified CircleGUI.CircleGUI as CircleGUI
 import qualified Control.Concurrent as Concurrent
 import qualified Control.Monad as Monad
 import qualified Data.IORef as IORef
+import qualified Genetic.Learning as Learning
+import qualified System.Random as Random
 
 -- Asyc "circle enlargment" task which simulates an animation
 -- as a calculation generates a new circle.

@@ -5,17 +5,11 @@ module TutorialProblems.Problems31to41 where
 
 import qualified Data.Map as Map
 import qualified Data.List as List
-import qualified Data.Tuple as Tuple
+import qualified Utils
 
 primes :: Integral a => [a]
 primes = next [2..]
   where next (n:ns) = n : (next . filter ((/= 0) . flip mod n) $ ns)
-
-liftTup2 :: (a -> b) -> (c -> d) -> (a, c) -> (b, d)
-liftTup2 f g (x, y) = (f x, g y)
-
-makeTup :: (a -> b) -> (a -> c) -> a -> (b, c)
-makeTup f g x = (f x, g x)
 
 -- Problem 31
 isPrime :: Integral a => a -> Bool
@@ -57,7 +51,7 @@ primeFactors = aux 2
 
 -- Problem 36
 primeFactorsMult :: Int -> [(Int, Int)]
-primeFactorsMult = map (makeTup head length) . List.group . primeFactors
+primeFactorsMult = map (Utils.makeTup head length) . List.group . primeFactors
 
 -- Problem 37
 totient2 :: Int -> Int
