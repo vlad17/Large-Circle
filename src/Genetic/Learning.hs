@@ -9,7 +9,7 @@ import Data.Bits ((.&.), (.|.))
 
 import qualified Control.Monad as Monad
 import qualified Control.Monad.Random as Random
-import qualified Data.Array.Unboxed as UA
+import qualified Data.Array.Unboxed as Array
 import qualified Data.Bits as Bits
 import qualified Data.List as List
 import qualified Data.Word as Word
@@ -18,7 +18,7 @@ import qualified Genetic.Sampler as Sampler
 import qualified Utils
 
 -- Currently, each chromosome has a uniform length.
-type Chromosome = UA.UArray Int Word.Word8
+type Chromosome = Array.UArray Int Word.Word8
 
 -- A learner represents a stage in the learning process
 data Learner g = Learner { gen :: Int -- generation number
@@ -60,8 +60,8 @@ learn :: Random.RandomGen g => Learner g -> Learner g
 
 create rgen fit cross mut len num = let
   num' = if num < 0 then 0 else num + num `mod` 2
-  makeChromosome = Monad.replicateM len Random.getRandom
-                   >>= return . UA.listArray (1, len)
+  makeChromosome = fmap (Array.listArray (1, len)) $
+                   Monad.replicateM len Random.getRandom
   (chrs, rgen') = Random.runRand (Monad.replicateM num' makeChromosome) rgen
   in Learner 0 rgen' fit cross mut len num' chrs
 
@@ -87,8 +87,8 @@ learn learner =
         loMask = fillBits [0..crossBit]
         hiMask = negate loMask
         -- Helpers to cross over, parameterized by direction of copy.
-        pullSegment arr = map $ Utils.makeTup id ((UA.!) arr)
-        crossedBytes arr1 arr2 = UA.array (1, chrLen) $
+        pullSegment arr = map $ Utils.makeTup id ((!) arr)
+        crossedBytes arr1 arr2 = Array.array (1, chrLen) $
           pullSegment arr1 [1..pred crossByte] ++
           pullSegment arr2 [succ crossByte..chrLen] ++
           [(crossByte, arr1!crossByte .&. loMask .|. arr2!crossByte .&. hiMask)]
@@ -97,14 +97,14 @@ learn learner =
     doMutate (cr1, cr2) =
       let
         -- Generate bit lists with 1s appearing with rate 'mutate learner'
-        makeBitWord = Monad.replicateM 8 (Sampler.shouldI $ mutate learner)
-                      >>= return . fillBits . List.findIndices id
+        makeBitWord = fmap (fillBits . List.findIndices id) $
+                      Monad.replicateM 8 (Sampler.shouldI $ mutate learner)
         makeBitFlip = Monad.replicateM chrLen makeBitWord
 
         -- Bit-flipping is just an xor op. Note 'b' is a list.
         mutateWord a b ix = a!ix `Bits.xor` b!!pred ix
         mutated a b =
-          UA.listArray (1, chrLen) . map (mutateWord a b) $ [1..chrLen]
+          Array.listArray (1, chrLen) . map (mutateWord a b) $ [1..chrLen]
       in do
         [bf1, bf2] <- Monad.replicateM 2 makeBitFlip
         return $ (mutated cr1 bf1, mutated cr2 bf2)

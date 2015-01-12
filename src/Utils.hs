@@ -16,3 +16,7 @@ doIf b f x = if b then f x else x
 
 doIfM :: Monad m => Bool -> (a -> m a) -> a -> m a
 doIfM b f x = if b then f x else return x
+
+infixl 1 >|>
+(>|>) :: a -> (a -> b) -> b
+(>|>) x f = f x

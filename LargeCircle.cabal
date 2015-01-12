@@ -36,6 +36,7 @@ executable LargeCircle
                      , Utils
   build-depends:       base < 5
                      , array
+                     , containers
                      , gtk
                      , tuple
                      , MonadRandom
