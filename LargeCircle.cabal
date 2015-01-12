@@ -38,6 +38,7 @@ executable LargeCircle
                      , array
                      , gtk
                      , tuple
+                     , MonadRandom
                      , mtl
                      , stm
                      , random

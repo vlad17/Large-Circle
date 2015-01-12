@@ -7,13 +7,14 @@ module Genetic.Learning where
 import Data.Array.Unboxed ((!))
 import Data.Bits ((.&.), (.|.))
 
+import qualified Control.Monad as Monad
+import qualified Control.Monad.Random as Random
 import qualified Data.Array.Unboxed as UA
 import qualified Data.Bits as Bits
 import qualified Data.List as List
-import qualified Data.Tuple as Tuple
 import qualified Data.Word as Word
 import qualified Genetic.Sampler as Sampler
-import qualified System.Random as Random
+--import qualified System.Random as Random
 import qualified Utils
 
 -- Currently, each chromosome has a uniform length.
@@ -21,7 +22,7 @@ type Chromosome = UA.UArray Int Word.Word8
 
 -- A learner represents a stage in the learning process
 data Learner g = Learner { gen :: Int -- generation number
-                         , random :: g -- random generator
+                         , rand :: g -- random generator
                          , eval :: Chromosome -> Double -- fitness function
                          , crossover :: Double
                          , mutate :: Double
@@ -57,53 +58,59 @@ learn :: Random.RandomGen g => Learner g -> Learner g
 -- TODO find a way to use a monad for transferring new rgen instances
 -- instead of having a ton of rgen variables...
 
-create rand fit cross mut len num = let
+create rgen fit cross mut len num = let
   num' = if num < 0 then 0 else num + num `mod` 2
-  makeChromosome rgen = Utils.tupRight2 (UA.listArray (1, len)) $
-                        Utils.feed (Tuple.swap . Random.random) rgen len
-  (rgen', chr) = Utils.feed makeChromosome rand num'
-  in Learner 0 rgen' fit cross mut len num' chr
+  makeChromosome = Monad.replicateM len Random.getRandom
+                   >>= return . UA.listArray (1, len)
+  (chrs, rgen') = Random.runRand (Monad.replicateM num' makeChromosome) rgen
+  in Learner 0 rgen' fit cross mut len num' chrs
 
-learn learner = Learner (succ $ gen learner) rgen fit (crossover learner)
-                (mutate learner) chrLen (number learner) picked
+learn learner =
+  let
+    newPool = Monad.replicateM (number learner `div` 2) pick2
+    (chrs, rgen) = Random.runRand newPool $ rand learner
+  in Learner (succ $ gen learner) rgen fit (crossover learner) (mutate learner)
+     chrLen (number learner) $ concatMap (\ (a, b) -> [a, b]) chrs
   where
     -- Extract the previous learner's data and build up a distribution
     (fit, old, chrLen) = (eval learner, chromosomes learner, chrLength learner)
     roulette = Sampler.makeAssoc old $ List.map fit old
 
-    -- Various genetic update helper functions
-    -- TODO add more documentation below
-    -- TODO remove global 'rgen' variable, re-use parameter rgen name.
     fillBits = List.foldl Bits.setBit 0
-    crossOver (rgenc, cr1, cr2) = let
-      (crossByte, rgen') = Random.randomR (1, chrLen) rgenc
-      (crossBit, rgen'') = Random.randomR (0, 7) rgen'
-      loMask = fillBits [0..crossBit]
-      hiMask = negate loMask
-      pullSegment arr = map $ Utils.makeTup id ((UA.!) arr)
-      centerByte arr1 arr2 =
-        (crossByte, arr1!crossByte .&. loMask .|. arr2!crossByte .&. hiMask)
-      crossedBytes arr1 arr2 = UA.array (1, chrLen) $
-        pullSegment arr1 [1..pred crossByte] ++
-        pullSegment arr2 [succ crossByte..chrLen] ++
-        [centerByte arr1 arr2]
-      in (rgen'', crossedBytes cr1 cr2, crossedBytes cr1 cr2)
-    doMutate (rgend, cr1, cr2) = let
-      makeBitWord rgenw =
-        Utils.tupRight2 (fillBits . List.findIndices id) $
-        Utils.feed (flip Sampler.shouldI $ mutate learner) rgenw 8
-      makeBitFlip rgenb = Utils.feed makeBitWord rgenb chrLen
-      mutateWord a b ix = a!ix `Bits.xor` b!!pred ix
-      mutated a b =
-        UA.listArray (1, chrLen) . map (mutateWord a b) $ [1..chrLen]
-      (rgen', [bf1, bf2]) = Utils.feed makeBitFlip rgend 2
-      in (rgen', [mutated cr1 bf1, mutated cr2 bf2])
+
+    crossOver (cr1, cr2) = do
+      -- Choose a random crossing point
+      crossByte <- Random.getRandomR (1, chrLen)
+      crossBit <- Random.getRandomR (0, 7)
+      let
+        -- Generate byte masks for the crossed byte
+        loMask = fillBits [0..crossBit]
+        hiMask = negate loMask
+        -- Helpers to cross over, parameterized by direction of copy.
+        pullSegment arr = map $ Utils.makeTup id ((UA.!) arr)
+        crossedBytes arr1 arr2 = UA.array (1, chrLen) $
+          pullSegment arr1 [1..pred crossByte] ++
+          pullSegment arr2 [succ crossByte..chrLen] ++
+          [(crossByte, arr1!crossByte .&. loMask .|. arr2!crossByte .&. hiMask)]
+      return $ (crossedBytes cr1 cr2, crossedBytes cr1 cr2)
+
+    doMutate (cr1, cr2) =
+      let
+        -- Generate bit lists with 1s appearing with rate 'mutate learner'
+        makeBitWord = Monad.replicateM 8 (Sampler.shouldI $ mutate learner)
+                      >>= return . fillBits . List.findIndices id
+        makeBitFlip = Monad.replicateM chrLen makeBitWord
+
+        -- Bit-flipping is just an xor op. Note 'b' is a list.
+        mutateWord a b ix = a!ix `Bits.xor` b!!pred ix
+        mutated a b =
+          UA.listArray (1, chrLen) . map (mutateWord a b) $ [1..chrLen]
+      in do
+        [bf1, bf2] <- Monad.replicateM 2 makeBitFlip
+        return $ (mutated cr1 bf1, mutated cr2 bf2)
 
     -- Pick chromosomes at random, cross over and mutate until a new pool forms
-    pick rgenp = Sampler.sample rgenp roulette
-    make2New rgenm = let
-      (rgen', [cr1, cr2]) = Utils.feed pick rgenm 2
-      (rgen'', shouldCrossOver) = Sampler.shouldI rgen' $ crossover learner
-      in doMutate . Utils.doIf shouldCrossOver crossOver $ (rgen'', cr1, cr2)
-    (rgen, picked) = Utils.tupRight2 concat $
-      Utils.feed make2New (random learner) $ number learner `div` 2
+    pick2 = do
+      [cr1, cr2] <- Monad.replicateM 2 $ Sampler.sample roulette
+      shouldCrossOver <- Sampler.shouldI $ crossover learner
+      Utils.doIfM shouldCrossOver crossOver (cr1, cr2) >>= doMutate
