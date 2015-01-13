@@ -32,6 +32,7 @@ executable LargeCircle
   main-is:             LargeCircle.hs
   other-modules:       Circles.Circles
                      , Circles.Encoding
+                     , Circles.Fitness
                      , CircleGUI.CircleGUI
                      , Genetic.Learning
                      , Utils
