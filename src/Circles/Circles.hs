@@ -23,3 +23,7 @@ makeRandom n w h minr maxr = sequence $ replicate n randomCircle
           y <- Random.randomRIO (0, h)
           r <- Random.randomRIO (minr, maxr)
           return $ Circle x y r
+
+instance Show Circle where
+  show (Circle { xCoord = x, yCoord = y, radius = r }) =
+    "Circle " ++ show r ++ " (" ++ show x ++ ", " ++ show y ++ ")"

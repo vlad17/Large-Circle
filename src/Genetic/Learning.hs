@@ -16,7 +16,6 @@ import qualified Data.Function as Function
 import qualified Data.List as List
 import qualified Data.Word as Word
 import qualified Genetic.Sampler as Sampler
---import qualified System.Random as Random
 import qualified Utils
 
 -- Currently, each chromosome has a uniform length.
@@ -59,6 +58,10 @@ learn :: Random.RandomGen g => Learner g -> Learner g
 -- getBest learner
 -- Returns the top chromosome so far.
 getBest :: Learner g -> Chromosome
+
+-- getGen learner
+-- Returns the generation for the learner
+getGen :: Learner g -> Int
 
 -- Implementation
 
@@ -127,3 +130,5 @@ getBest learner =
   >|> List.map (Utils.makeTup id $ eval learner)
   >|> List.maximumBy (compare `Function.on` snd)
   >|> fst
+
+getGen = gen
