@@ -45,3 +45,26 @@ $ cabal install caball-install
 3. Wire genetic algorithm into main.
 4. Clean up the interface (and other TODOs)
 5. Add unit testing
+6. The Circles.Fitness module can be made much faster. For one, it can
+   store the static circle locations more effectively.
+7. Profile to see if serialization needs to copy less.
+
+Fun stuff for later:
+
+* Make a start/halt button for the genetic algorithm (to stop over
+  the various stages of the algorithm).
+* Make a clickable circle arena where if stopped you can a new circle
+  to the algorithm in real time. This involves adding a reset button to
+  if the user wants to start with new chromosomes.
+* Make the buttons keyboard-accessible (start - [s], halt - [h], reset - [r])
+* Allow clearing the circle arena with a clear button ([c]).
+* Make a new set of random circles with a button (new - [n]) with a popup
+  menu that queries the user for a circle count (with a text field).
+
+Notes:
+
+1. Don't have the static Circles.Fitness structure support an add method,
+   this should happen rarely enough - user-click speed - that the new circles
+   won't affect anything.
+2. All the buttons except halt should be deactivated while the program is
+   running but enabled if halted (halting while halted does nothing).
