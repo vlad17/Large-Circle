@@ -38,6 +38,8 @@ executable LargeCircle
                      , Utils
   build-depends:       base < 5
                      , array
+                     , binary
+                     , bytestring
                      , containers
                      , gtk
                      , tuple

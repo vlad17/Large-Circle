@@ -6,11 +6,13 @@ module Genetic.Learning where
 
 import Data.Array.Unboxed ((!))
 import Data.Bits ((.&.), (.|.))
+import Utils ((>|>))
 
 import qualified Control.Monad as Monad
 import qualified Control.Monad.Random as Random
 import qualified Data.Array.Unboxed as Array
 import qualified Data.Bits as Bits
+import qualified Data.Function as Function
 import qualified Data.List as List
 import qualified Data.Word as Word
 import qualified Genetic.Sampler as Sampler
@@ -54,7 +56,11 @@ create :: Random.RandomGen g => g
 -- step.
 learn :: Random.RandomGen g => Learner g -> Learner g
 
--- TODO get best chromosome
+-- getBest learner
+-- Returns the top chromosome so far.
+getBest :: Learner g -> Chromosome
+
+-- Implementation
 
 -- TODO find a way to use a monad for transferring new rgen instances
 -- instead of having a ton of rgen variables...
@@ -115,3 +121,9 @@ learn learner =
       [cr1, cr2] <- Monad.replicateM 2 $ Sampler.sample roulette
       shouldCrossOver <- Sampler.shouldI $ crossover learner
       Utils.doIfM shouldCrossOver crossOver (cr1, cr2) >>= doMutate
+
+getBest learner =
+  chromosomes learner
+  >|> List.map (Utils.makeTup id $ eval learner)
+  >|> List.maximumBy (compare `Function.on` snd)
+  >|> fst

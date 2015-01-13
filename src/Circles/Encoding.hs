@@ -3,11 +3,9 @@
 module Circles.Encoding where
 
 import qualified Data.Binary as Binary
-
-import qualified Data.Bits as Bits
-import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as B
 import qualified Data.Word as Word
-import qualified Circles.Circles
+import qualified Circles.Circles as Circles
 
 -- encode circle
 -- Encodes a circle as a byte list.

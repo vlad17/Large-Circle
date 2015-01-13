@@ -4,6 +4,8 @@
 -- until it reaches the edges.
 
 import qualified Circles.Circles as Circles
+import qualified Circles.Encoding as Encoding
+import qualified Circles.Fitness as Fitness
 import qualified CircleGUI.CircleGUI as CircleGUI
 import qualified Control.Concurrent as Concurrent
 import qualified Control.Monad as Monad

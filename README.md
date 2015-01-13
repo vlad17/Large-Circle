@@ -40,13 +40,15 @@ $ cabal install caball-install
 
 ## TODO list
 
-1. Add best-so-far accessor for genetic learners
-2. Wire genetic algorithm into main.
-3. Clean up the interface (and other TODOs)
-4. Add unit testing
-5. The Circles.Fitness module can be made much faster. For one, it can
+1. Wire genetic algorithm into main.
+2. Clean up the interface (and other TODOs)
+3. Add unit testing
+4. The Circles.Fitness module can be made much faster. For one, it can
    store the static circle locations more effectively.
-6. Profile to see if serialization needs to copy less.
+5. Profile to see if serialization needs to copy less.
+6. Profile to see if best learner should be cached during crossing over
+   (if so, just maintain a map of chromosomes instead of a list, pass that
+   to Sampler as appropriate).
 
 Fun stuff for later:
 
