@@ -37,3 +37,11 @@ should ~~suck it~~ have their respective invocations.
 $ sudo apt-get install haskell-platform
 $ cabal install caball-install
 ```
+
+## TODO list
+
+1. Add a scoring system for circle solutions
+2. Add best-so-far accessor for genetic learners
+3. Implement an encoding for largest-circle solutions
+4. Clean up the interface 
+5. Add unit testing
