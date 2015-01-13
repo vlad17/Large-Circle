@@ -18,6 +18,7 @@ import qualified Genetic.Sampler as Sampler
 import qualified Utils
 
 -- Currently, each chromosome has a uniform length.
+-- TODO make this accept a generic Ix
 type Chromosome = Array.UArray Int Word.Word8
 
 -- A learner represents a stage in the learning process

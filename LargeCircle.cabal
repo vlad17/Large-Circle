@@ -31,6 +31,7 @@ executable LargeCircle
   ghc-options:         -Wall -threaded
   main-is:             LargeCircle.hs
   other-modules:       Circles.Circles
+                     , Circles.Encoding
                      , CircleGUI.CircleGUI
                      , Genetic.Learning
                      , Utils

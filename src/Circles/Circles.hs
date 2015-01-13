@@ -12,7 +12,7 @@ toTuple (Circle { xCoord = x, yCoord = y, radius = r }) = (x, y, r)
 
 -- makeRandom n w h minr maxr
 -- Makes n random circles with centers in the rectangle (0, 0) x (w, h)
--- with radii uniformly selected in the range (minr, maxr)
+-- with radii uniformly selected in the range (minr, maxr).
 makeRandom :: Int -> Int -> Int -> Int -> Int -> IO [Circle]
 
 -- Implementation

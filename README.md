@@ -42,6 +42,6 @@ $ cabal install caball-install
 
 1. Add a scoring system for circle solutions
 2. Add best-so-far accessor for genetic learners
-3. Implement an encoding for largest-circle solutions
-4. Clean up the interface 
+3. Wire genetic algorithm into main.
+4. Clean up the interface (and other TODOs)
 5. Add unit testing
