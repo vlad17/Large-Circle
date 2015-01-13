@@ -15,6 +15,10 @@ toTuple (Circle { xCoord = x, yCoord = y, radius = r }) = (x, y, r)
 -- with radii uniformly selected in the range (minr, maxr).
 makeRandom :: Int -> Int -> Int -> Int -> Int -> IO [Circle]
 
+-- maxR w h
+-- Maximum radius for a circle in the given screen
+maxR :: Int -> Int -> Int
+
 -- Implementation
 
 makeRandom n w h minr maxr = sequence $ replicate n randomCircle
@@ -24,6 +28,7 @@ makeRandom n w h minr maxr = sequence $ replicate n randomCircle
           r <- Random.randomRIO (minr, maxr)
           return $ Circle x y r
 
+maxR w h = min w h `quot` 2
 instance Show Circle where
   show (Circle { xCoord = x, yCoord = y, radius = r }) =
     "Circle " ++ show r ++ " (" ++ show x ++ ", " ++ show y ++ ")"

@@ -15,12 +15,16 @@ import qualified Data.IORef as IORef
 import qualified Genetic.Learning as Learning
 import qualified System.Random as Random
 
--- runFindCircle update circle fit
+-- runFindCircle update circle fit decoder w h
 --
 -- Uses the 'update' update handler to let the GUI thread know
 -- when the reference to the 'circle' has changed, which occurs every
 -- few hundred milliseconds, with a new generation's solution to the
 -- single circle-packing problem.
+--
+-- Uses 'decoder' for decoding chromosomes
+--
+-- Assumes canvas size is w x h
 --
 -- Uses fitness function 'fit'
 --
@@ -29,29 +33,38 @@ runFindCircle ::
   IO ()
   -> IORef.IORef Circles.Circle
   -> (Learning.Chromosome -> Double)
+  -> (Learning.Chromosome -> Circles.Circle)
+  -> Int
+  -> Int
   -> IO ()
-runFindCircle update circle fit =
+-- TODO clean up parameters here (pass normal fitness)
+runFindCircle update circle fit decoder w h =
   let
     loop learner = do
-      let best = Encoding.decode . Array.elems $ Learning.getBest learner
-      IORef.writeIORef circle best
+      let best = Learning.getBest learner
+          bestCircle = decoder best
+      IORef.writeIORef circle bestCircle
       putStrLn $ "generation " ++ show (Learning.getGen learner)
-        ++ ", " ++ show best
+        ++ ", " ++ show bestCircle ++ ": " ++ show (fit best)
       update
       Concurrent.threadDelay 100000 -- TODO incorporate computation time here
       loop $ Learning.learn learner
     cross = 0.7
-    mut = 0.001
-    len = Encoding.codeSize
+    mut = 0.01
+    len = Encoding.codeSize w h
     num = 1000
     initialLearner rgen = Learning.create rgen fit cross mut len num
-  in Random.randomIO >>= loop . initialLearner . Random.mkStdGen
+  in do
+    seed <- Random.randomIO
+    putStrLn $ "Seed: " ++ show seed
+    loop . initialLearner $ Random.mkStdGen seed
 
 main :: IO ()
 main = do
   -- Generate the window and retreive its sizes
   window <- CircleGUI.start "Circles"
   (w, h) <- CircleGUI.size window
+  putStrLn $ "Window size: " ++ show w ++ "x" ++ show h
 
   -- Generate the circles for the given window
   let maxRadius = flip div 4 $ min w h
@@ -64,10 +77,10 @@ main = do
 
   -- Set a thread to make the redCircle closer to the circle-packing
   -- solution as time goes on, but only after GTK+ lets updates occur.
-  let fit = (\ circ -> Fitness.circleFitness circ randomCircles w h)
-            .  Encoding.decode . Array.elems
+  let decoder = Encoding.decoder w h . Array.elems
+      fit = (\ circ -> Fitness.circleFitness circ randomCircles w h) . decoder
   CircleGUI.postDisplay window $ Monad.void . Concurrent.forkIO $
-    runFindCircle update redCircle fit
+    runFindCircle update redCircle fit decoder w h
 
   -- Add them to the canvas and display
   CircleGUI.finish window
