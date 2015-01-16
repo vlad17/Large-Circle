@@ -47,7 +47,7 @@ runFindCircle update circle fit decoder w h =
       putStrLn $ "generation " ++ show (Learning.getGen learner)
         ++ ", " ++ show bestCircle ++ ": " ++ show (fit best)
       update
-      Concurrent.threadDelay 100000 -- TODO incorporate computation time here
+      Concurrent.threadDelay 10000 -- TODO incorporate computation time here
       loop $ Learning.learn learner
     cross = 0.7
     mut = 0.01
