@@ -11,8 +11,6 @@ import qualified Data.Map as Map
 import qualified Data.List as List
 import qualified Utils as Utils
 
--- TODO filter interface.
-
 -- CDF upper bound to value mapping
 type SamplingDistribution a = Map.Map Double a
 

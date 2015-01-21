@@ -32,28 +32,25 @@ import qualified System.Random as Random
 runFindCircle ::
   IO ()
   -> IORef.IORef Circles.Circle
-  -> (Learning.Chromosome -> Double)
+  -> (Circles.Circle -> Double)
   -> (Learning.Chromosome -> Circles.Circle)
   -> Int
   -> Int
   -> IO ()
--- TODO clean up parameters here (pass normal fitness)
 runFindCircle update circle fit decoder w h =
   let
     loop learner = do
-      let best = Learning.getBest learner
-          bestCircle = decoder best
-      IORef.writeIORef circle bestCircle
+      let best = decoder $ Learning.getBest learner
+      IORef.writeIORef circle best
       putStrLn $ "generation " ++ show (Learning.getGen learner)
-        ++ ", " ++ show bestCircle ++ ": " ++ show (fit best)
+        ++ ", " ++ show best ++ ": " ++ show (fit best)
       update
-      Concurrent.threadDelay 10000 -- TODO incorporate computation time here
       loop $ Learning.learn learner
     cross = 0.7
     mut = 0.01
     len = Encoding.codeSize w h
     num = 1000
-    initialLearner rgen = Learning.create rgen fit cross mut len num
+    initialLearner rgen = Learning.create rgen (fit . decoder) cross mut len num
   in do
     seed <- Random.randomIO
     putStrLn $ "Seed: " ++ show seed
@@ -78,7 +75,7 @@ main = do
   -- Set a thread to make the redCircle closer to the circle-packing
   -- solution as time goes on, but only after GTK+ lets updates occur.
   let decoder = Encoding.decoder w h . Array.elems
-      fit = (\ circ -> Fitness.circleFitness circ randomCircles w h) . decoder
+      fit circ = Fitness.circleFitness circ randomCircles w h
   CircleGUI.postDisplay window $ Monad.void . Concurrent.forkIO $
     runFindCircle update redCircle fit decoder w h
 

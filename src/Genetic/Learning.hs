@@ -1,8 +1,7 @@
 -- Exposes an iterative genetic learning interface.
 
-module Genetic.Learning where
-
--- TODO: filter out interface. No Learner(..) needed.
+module Genetic.Learning
+       ( Chromosome, Learner, create, learn, getBest, getGen ) where
 
 import Data.Array.Unboxed ((!))
 import Data.Bits ((.&.), (.|.))
@@ -19,7 +18,6 @@ import qualified Genetic.Sampler as Sampler
 import qualified Utils
 
 -- Currently, each chromosome has a uniform length.
--- TODO make this accept a generic Ix
 type Chromosome = Array.UArray Int Word.Word8
 
 -- A learner represents a stage in the learning process
@@ -64,9 +62,6 @@ getBest :: Learner g -> Chromosome
 getGen :: Learner g -> Int
 
 -- Implementation
-
--- TODO find a way to use a monad for transferring new rgen instances
--- instead of having a ton of rgen variables...
 
 create rgen fit cross mut len num = let
   num' = if num < 0 then 0 else num + num `mod` 2
