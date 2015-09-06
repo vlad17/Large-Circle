@@ -23,4 +23,4 @@ circleFitness circle circles w h  =
   where
     r = Circles.radius circle
     inRange = let (x, y, _) = Circles.toTuple circle
-              in x - r > 0 && x + r < w && y - r > 0 && y + r < h
+              in x - r >= 0 && x + r <= w && y - r >= 0 && y + r <= h

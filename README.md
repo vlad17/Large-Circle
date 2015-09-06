@@ -40,6 +40,7 @@ $ cabal install caball-install
 
 ## TODO list
 
+0. Add Encoding1 as a green circle (same time as Encoding2).
 1. Clean up the interface (and other TODOs)
 2. Add unit testing
 3. The Circles.Fitness module can be made much faster. For one, it can

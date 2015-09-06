@@ -27,6 +27,9 @@ infixl 1 >|>
 (>|>) :: a -> (a -> b) -> b
 (>|>) x f = f x
 
+square :: Num a => a -> a
+square x = x * x
+
 isqrt :: Int -> Int
 isqrt = floor . (sqrt :: Double -> Double) . fromIntegral
 

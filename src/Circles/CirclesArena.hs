@@ -1,10 +1,10 @@
 -- A CirclesArena is a structure that takes care of methods pertaining to
 -- the interaction (i.e., potential intersection, etc.) of one modifyable
 -- circle with a set of static circles.
-module Circles.CirclesArena (CirclesArena, intersects) where
+module Circles.CirclesArena where
 
 import qualified Circles.Circles as Circles
-import Utils (isqrt)
+import Utils (square, isqrt)
 
 import qualified Data.List as List
 
@@ -22,7 +22,6 @@ intersects :: CirclesArena -> Circles.Circle -> Bool
 maxPossibleRadius :: CirclesArena -> Int -> Int -> Maybe Int
 
 -- Implementation
-square x = x * x
 
 intersects circles circle = List.any (intersect circle) circles
   where
@@ -32,9 +31,9 @@ intersects circles circle = List.any (intersect circle) circles
       in square (x1 - x2) + square (y1 - y2) < square (r1 + r2)
 
 maxPossibleRadius circles x y =
-  (sequence $ map largestRadius circles) >>= return . minimum
+  fmap minimum $ sequence $ map largestRadius circles
   where
     freeRoom circle = let (x', y', r) = Circles.toTuple circle in
-      square (x - x') + square (y - y') - square r
+      isqrt (square (x - x') + square (y - y')) - r
     largestRadius circle = let rsq = freeRoom circle in
-      if rsq < 0 then Nothing else Just (isqrt rsq)
+      if rsq < 0 then Nothing else Just rsq

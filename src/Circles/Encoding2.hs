@@ -38,6 +38,6 @@ decoder arena w h = decode
     decode bytes =
       let [x, y] = readAdjacentBytes bytes $ map minBits [w, h]
           [x', y'] = [x `rem` w, y `rem` h]
-          r = CirclesArena.maxPossibleRadius arena x y
+          r = maybe 0 id $ CirclesArena.maxPossibleRadius arena x y
           rAdjust = min x' . min (w - x') . min y' . min (h - y')          
       in Circles.Circle x' y' $ rAdjust r
