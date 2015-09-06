@@ -5,7 +5,7 @@
 -- possible without intersecting any of the black circles.
 
 import qualified Circles.Circles as Circles
-import qualified Circles.Encoding as Encoding
+import qualified Circles.Encoding1 as Encoding1
 import qualified Circles.Fitness as Fitness
 import qualified CircleGUI.CircleGUI as CircleGUI
 import qualified Control.Concurrent as Concurrent
@@ -47,8 +47,8 @@ runFindCircle update circle fit decoder w h =
       update
       loop $ Learning.learn learner
     cross = 0.7
-    mut = 0.01
-    len = Encoding.codeSize w h
+    mut = 0.02
+    len = Encoding1.codeSize w h
     num = 1000
     initialLearner rgen = Learning.create rgen (fit . decoder) cross mut len num
   in do
@@ -74,7 +74,7 @@ main = do
 
   -- Set a thread to make the redCircle closer to the circle-packing
   -- solution as time goes on, but only after GTK+ lets updates occur.
-  let decoder = Encoding.decoder w h . Array.elems
+  let decoder = Encoding1.decoder w h . Array.elems
       fit circ = Fitness.circleFitness circ randomCircles w h
   CircleGUI.postDisplay window $ Monad.void . Concurrent.forkIO $
     runFindCircle update redCircle fit decoder w h

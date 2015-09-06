@@ -31,7 +31,8 @@ executable LargeCircle
   ghc-options:         -Wall -threaded -O2 -optc-O3 -optc-ffast-math -rtsopts
   main-is:             LargeCircle.hs
   other-modules:       Circles.Circles
-                     , Circles.Encoding
+                     , Circles.Encoding1
+                     , Circles.Encoding2
                      , Circles.Fitness
                      , CircleGUI.CircleGUI
                      , Genetic.Learning
