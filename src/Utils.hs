@@ -27,6 +27,9 @@ infixl 1 >|>
 (>|>) :: a -> (a -> b) -> b
 (>|>) x f = f x
 
+isqrt :: Int -> Int
+isqrt = floor . (sqrt :: Double -> Double) . fromIntegral
+
 log2 :: Int -> Int
 log2 0 = 0
 log2 x = 1 + log2 (x `quot` 2)
