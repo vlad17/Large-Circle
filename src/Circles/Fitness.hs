@@ -5,26 +5,22 @@ module Circles.Fitness where
 import Utils ((>|>))
 
 import qualified Circles.Circles as Circles
-import qualified Data.List as List
+import qualified Circles.CirclesArena as CirclesArena
 
 -- circleFitness circle circles w h
 -- Returns a non-negative fitness score for 'circle' given the circles
 -- it shouldn't intersect with, 'circles', and the range it should be in
 -- completely.
-circleFitness :: Circles.Circle -> [Circles.Circle] -> Int -> Int -> Double
+circleFitness :: Circles.Circle -> CirclesArena.CirclesArena 
+  -> Int -> Int -> Double
 
 -- Implementation
 
 circleFitness circle circles w h  =
   -- TODO try intersecting area (somehow...), distance from center of image.
-  (if not inRange || List.any (intersect circle) circles then 0 else r)
+  (if not inRange || CirclesArena.intersects circles circle then 0 else r)
   >|> fromIntegral
   where
     r = Circles.radius circle
     inRange = let (x, y, _) = Circles.toTuple circle
               in x - r > 0 && x + r < w && y - r > 0 && y + r < h
-    intersect c1 c2 =
-      let (x1, y1, r1) = Circles.toTuple c1
-          (x2, y2, r2) = Circles.toTuple c2
-          square x = x * x
-      in square (x1 - x2) + square (y1 - y2) < square (r1 + r2)
