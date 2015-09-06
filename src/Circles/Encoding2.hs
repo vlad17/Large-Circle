@@ -10,6 +10,7 @@ import Utils (minBits, readAdjacentBytes, (>|>))
 import qualified Data.List as List
 import qualified Data.Word as Word
 import qualified Circles.Circles as Circles
+import qualified Circles.CirclesArena as CirclesArena
 
 -- codeSize w h
 -- Returns the size of the code for a frame of size 'w' x 'h'.
@@ -21,9 +22,9 @@ codeSize :: Int -> Int -> Int
 -- encode :: Circles.Circle -> [Word.Word8]
 -- TODO: implement, encoding only necessary for testing
 
--- decoder w h
--- Generates a decoder specialized for the given range.
-decoder :: [Circles.Circle] -> Int -> Int -> ([Word.Word8] -> Circles.Circle)
+-- decoder arena w h
+-- Generates a decoder specialized for the given range and circles arena.
+decoder :: CirclesArena.CirclesArena -> Int -> Int -> ([Word.Word8] -> Circles.Circle)
 
 -- Implementation
 
@@ -32,8 +33,11 @@ codeSize w h = map minBits [w, h] >|> List.sum >|> (+ 7) >|> (`quot` 8)
 -- Serialization format is:
 -- |---x---||---y---|
 
-decoder circles w h = decode
+decoder arena w h = decode
   where
     decode bytes =
-      let [x, y, r] = readAdjacentBytes bytes $ map minBits [w, h]
-      in Circles.Circle (x `rem` w) (y `rem` h) (rem r $ Circles.maxR w h)
+      let [x, y] = readAdjacentBytes bytes $ map minBits [w, h]
+          [x', y'] = [x `rem` w, y `rem` h]
+          r = CirclesArena.maxPossibleRadius arena x y
+          rAdjust = min x' . min (w - x') . min y' . min (h - y')          
+      in Circles.Circle x' y' $ rAdjust r
